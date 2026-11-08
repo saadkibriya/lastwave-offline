@@ -70,7 +70,7 @@ jobs:
           path: out/*.apk
 
       - name: Publish to Releases
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: build-${{ github.run_number }}
           name: LastWave Offline build ${{ github.run_number }}
