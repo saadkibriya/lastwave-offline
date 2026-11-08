@@ -29,6 +29,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Remove stale library plugin line
+        run: |
+          sed -i '/libs.plugins.android.library/d' build.gradle.kts
+          cat build.gradle.kts
+
       - name: Build debug APK
         run: |
           set +e
