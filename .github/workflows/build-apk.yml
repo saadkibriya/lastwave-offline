@@ -30,7 +30,26 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+        run: |
+          set +e
+          ./gradlew :app:assembleDebug --console=plain --no-configuration-cache > build.log 2>&1
+          code=$?
+          if [ $code -ne 0 ]; then
+            echo "=================== REAL ERROR ==================="
+            grep -n -B2 -A25 "What went wrong" build.log | head -80
+            echo "=================== COMPILER ERRORS ==================="
+            grep -n "^e: \|error:" build.log | head -40
+            echo "=================== FIRST 40 LINES ==================="
+            head -40 build.log
+          fi
+          exit $code
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
       - name: Collect APK
         run: |
@@ -39,7 +58,7 @@ jobs:
           for f in out/*.apk; do mv "$f" "out/LastWave-Offline-${GITHUB_RUN_NUMBER}.apk"; break; done
           ls -lh out
 
-      - name: Upload artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: LastWave-Offline-apk
